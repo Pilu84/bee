@@ -18,13 +18,9 @@ if (process.env.NODE_ENV != 'production') {
     app.use('/bundle.js', (req, res) => res.sendFile(`${__dirname}/bundle.js`));
 }
 
-app.use(express.static("./public"));
+
 app.use(express.static("./uploads"));
-
-
-app.get("/valami", (req, res) => {
-    res.json({valami: "world"});
-});
+app.use(express.static("./public"));
 
 
 
