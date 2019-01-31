@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const compression = require('compression');
 const bodyParser = require("body-parser");
+const { getCities } = require("./connecttoair");
 
 
 app.use(bodyParser.json());
@@ -21,6 +22,13 @@ if (process.env.NODE_ENV != 'production') {
 
 app.use(express.static("./uploads"));
 app.use(express.static("./public"));
+
+app.get("/citiinuk", (req, res) => {
+    getCities(function(cities) {
+
+        res.json({cities: cities.results});
+    });
+});
 
 
 
