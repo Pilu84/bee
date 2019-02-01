@@ -1,11 +1,12 @@
 import React from "react";
 import axios from "axios";
+import $ from "jquery";
 
 
 export default class App extends React.Component {
     constructor() {
         super();
-        this.state = {search: "", result: false, data: "", visible: false, value: ""};
+        this.state = {search: "", result: false, data: "", visible: false, value: "", filter: false, valami: ""};
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleClick = this.handleClick.bind(this);
@@ -13,8 +14,12 @@ export default class App extends React.Component {
     }
 
     handleListClick(e) {
-        console.log("az e target: ", e.target.textContent);
-        this.setState({value: e.target.textContent, visible: false});
+
+        this.setState({visible: false});
+
+        $( "input[name='city']" ).val(e.target.textContent);
+
+
     }
 
     handleClick() {
@@ -23,9 +28,15 @@ export default class App extends React.Component {
 
     handleChange(e) {
         const search = e.target.value;
-        this.setState({search: search, result: true});
+        const list = this.state.data;
 
+        var newList = list.filter(function(v) {
+            return v.toLowerCase().indexOf(search.toLowerCase()) !== -1;
+        });
+        this.setState({data: newList});
     }
+
+
 
 
     handleSubmit(e) {
@@ -34,7 +45,13 @@ export default class App extends React.Component {
 
     componentDidMount() {
         axios.get("/citiinuk").then(resp => {
-            this.setState({data: resp.data});
+
+            let list = [];
+            for (var i = 0; i < resp.data.cities.length; i++) {
+                list.push(resp.data.cities[i].city);
+            }
+            this.setState({data: list});
+
         });
     }
 
@@ -46,10 +63,11 @@ export default class App extends React.Component {
             return null;
         }
 
-        let arrOfCities = data.cities.map((citiname, index) => {
+
+        let arrOfCities = data.map((citiname, index) => {
 
             return (
-                <li key = {index} className="text-dark" onClick={this.handleListClick}>{citiname.city}</li>
+                <li key = {index} className="text-dark" onClick={this.handleListClick}>{citiname}</li>
             );
         });
 
@@ -71,11 +89,12 @@ export default class App extends React.Component {
                                 <div className="input-group-prepend">
                                     <span className="input-group-text" id="basic-addon1"><i className="fas fa-search text-secondary"></i></span>
                                 </div>
-                                <input type="search" className="form-control text-dark rounded shadow" placeholder="Enter city name" aria-label="name" aria-describedby="basic-addon1" name="city" onChange={this.handleChange} onClick={this.handleClick} value={this.state.value}/>
+                                <input type="search" className="form-control text-dark rounded shadow" placeholder="Enter city name" aria-label="name" aria-describedby="basic-addon1" name="city" onChange={this.handleChange} onClick={this.handleClick} />
                             </div>
                             {this.state.visible && <div id="results" className="bg-light">
-                                <ul className="overflow-auto">
+                                <ul className="overflow-auto h-100">
                                     {arrOfCities}
+
                                 </ul>
 
                             </div>}
