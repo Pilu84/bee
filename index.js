@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const compression = require('compression');
 const bodyParser = require("body-parser");
-const { getCities } = require("./connecttoair");
+const { getCities, getCityParams, getLocationUpdated } = require("./connecttoair");
 
 
 app.use(bodyParser.json());
@@ -25,11 +25,22 @@ app.use(express.static("./public"));
 
 app.get("/citiinuk", (req, res) => {
     getCities(function(cities) {
-
-        res.json({cities: cities.results});
+        res.json({cities: cities});
     });
 });
 
+
+app.post("/sendciti", (req, res) => {
+
+    getCityParams(req.body.cityname, function(cityparams) {
+        getLocationUpdated(cityparams.results[0].location, function(location) {
+            const sendData = {...cityparams.results[0], updated: location.results[0].lastUpdated};
+            res.json({airdata: sendData});
+        });
+    });
+
+
+});
 
 
 

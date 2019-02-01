@@ -22,10 +22,58 @@ module.exports.getCities = function getCities(cb) {
 
         resp.on("end", () => {
             let parsedBody = JSON.parse(body);
-            cb(parsedBody);
+            let list = [];
+            for (var i = 0; i < parsedBody.results.length; i++) {
+                list.push(parsedBody.results[i].city);
+            }
+            cb(list);
         });
     };
 
     const req = https.request(options, callback);
     req.end();
+};
+
+
+module.exports.getCityParams = function getCityParams(cityname, cb) {
+
+
+    https.get('https://api.openaq.org//v1/latest?city='+cityname, (resp) => {
+        let data = '';
+
+        resp.on('data', (chunk) => {
+            data += chunk;
+        });
+
+
+        resp.on('end', () => {
+            let parsedBody = JSON.parse(data);
+            cb(parsedBody);
+        });
+
+    }).on("error", (err) => {
+        console.log("Error: " + err.message);
+    });
+
+};
+
+module.exports.getLocationUpdated = function getLocationUpdated(location, cb) {
+
+    https.get('https://api.openaq.org//v1/locations?location='+location, (resp) => {
+        let data = '';
+
+        resp.on('data', (chunk) => {
+            data += chunk;
+        });
+
+
+        resp.on('end', () => {
+            let parsedBody = JSON.parse(data);
+            cb(parsedBody);
+        });
+
+    }).on("error", (err) => {
+        console.log("Error: " + err.message);
+    });
+
 };
