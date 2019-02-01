@@ -8,7 +8,7 @@ export default class App extends React.Component {
     constructor() {
         super();
         this.state = {search: "", data: "", visible: false, value: "", filter: false, results: [], fulllist: ""};
-        // this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleFocus = this.handleFocus.bind(this);
         this.handleListClick = this.handleListClick.bind(this);
@@ -29,7 +29,6 @@ export default class App extends React.Component {
                     newArray.push(this.state.results[i]);
                 }
             }
-            
             this.setState({results: newArray});
         }
     }
@@ -40,15 +39,12 @@ export default class App extends React.Component {
         $( "input[name='city']" ).val(e.target.textContent);
         let cityname = e.target.textContent;
 
-
         axios.post("/sendciti", {cityname: cityname}).then(resp => {
             let resultList = this.state.results;
             resultList.push(resp.data.airdata);
-            this.setState({results: resultList, data: this.state.fulllist});
+            this.setState({results: resultList});
             $( "input[name='city']" ).val("");
         });
-        console.log(this.state.results);
-
 
     }
 
@@ -59,20 +55,34 @@ export default class App extends React.Component {
     handleChange(e) {
         const search = e.target.value;
         const list = this.state.fulllist;
-
+        this.setState({visible: true});
         var newList = list.filter(function(v) {
             return v.toLowerCase().indexOf(search.toLowerCase()) !== -1;
         });
-        this.setState({data: newList});
+        this.setState({data: newList, [e.target.name]: e.target.value});
+
     }
 
 
 
 
-    // handleSubmit(e) {
-    //     e.preventDefault();
-    //     sendData();
-    // }
+    handleSubmit(e) {
+        e.preventDefault();
+        this.setState({visible: false});
+
+        let cityname = this.state.city;
+        cityname = cityname.charAt(0).toUpperCase() + cityname.substr(1).toLowerCase();
+
+        axios.post("/sendciti", {cityname: cityname}).then(resp => {
+
+            let resultList = this.state.results;
+            
+            resultList.push(resp.data.airdata);
+            this.setState({results: resultList});
+            $( "input[name='city']" ).val("");
+        });
+
+    }
 
     componentDidMount() {
         axios.get("/citiinuk").then(resp => {
@@ -153,12 +163,6 @@ export default class App extends React.Component {
                                 </ul>
 
                             </div>}
-                        </div>
-
-                        <div className="form-group">
-                            <div className="input-group mb-3 justify-content-center">
-                                <button className = "btn btn-primary mt-5 mb-5">Search city</button>
-                            </div>
                         </div>
 
                     </form>

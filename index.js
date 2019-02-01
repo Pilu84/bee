@@ -31,7 +31,7 @@ app.get("/citiinuk", (req, res) => {
 
 
 app.post("/sendciti", (req, res) => {
-
+    
     getCityParams(req.body.cityname, function(cityparams) {
         getLocationUpdated(cityparams.results[0].location, function(location) {
             const sendData = {...cityparams.results[0], updated: location.results[0].lastUpdated};
